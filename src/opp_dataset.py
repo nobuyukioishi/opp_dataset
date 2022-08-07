@@ -11,7 +11,7 @@ import warnings
 import pandas as pd
 from pathlib import Path
 
-from src import _utils
+import _utils
 
 
 class OppDataset:
@@ -26,7 +26,7 @@ class OppDataset:
                                 "LL_Right_Arm_Object", "ML_Both_Arms"]
     SENSOR_TYPES: Tuple[str] = ("acc", "gyro", "magnetic", "Quaternion")
     ZIP_FILE_NAME: str = "OpportunityUCIDataset.zip"
-    DEFAULT_DATASET_DIR: str = "./data/"
+    DEFAULT_DATASET_DIR: Path = Path("./data/")
     ARCHIVE_URL: str = "https://archive.ics.uci.edu/ml/machine-learning-databases/00226/OpportunityUCIDataset.zip"
 
     dataset_path = None
@@ -64,24 +64,27 @@ class OppDataset:
 
         return res
 
-    def __init__(self, dataset_dir: str = DEFAULT_DATASET_DIR, download: bool = False):
+    def __init__(self, dataset_dir: Union[Path, str] = DEFAULT_DATASET_DIR, download: bool = False):
         """
 
         :param dataset_dir:
         """
 
+        if type(dataset_dir) != Path:
+            dataset_dir = Path(dataset_dir)  # convert to Path object
+
         # Check if the directory exists.
-        if not os.path.isdir(dataset_dir):
+        if not dataset_dir.is_dir():
             raise FileNotFoundError(
                 errno.ENOENT, os.strerror(errno.ENOENT),
                 f"{dataset_dir} {'(Default directory)' if dataset_dir == self.DEFAULT_DATASET_DIR else ''} not found. "
                 f"Please specify a directory that already exists."
             )
 
-        dataset_path = dataset_dir + f"{'' if dataset_dir[-1] == '/' else '/'}" + self.ZIP_FILE_NAME
+        dataset_path = dataset_dir / self.ZIP_FILE_NAME
 
         # Check if the dataset file exists.
-        if not os.path.isfile(dataset_path):
+        if not dataset_path.is_file():
             # Download the dataset when download is True
             if download:
                 # Check if dataset_dir exists
@@ -110,7 +113,7 @@ class OppDataset:
 
         opp_sensor_columns = []
         regx_str = r"Column: (?P<col_no>\d+) (?P<col_name>[\w\s^-]+)(;\s(?P<meta_info>[\w\s^=(),/*]+))*\n*"
-        with ZipFile(OppDataset.ZIP_FILE_NAME, 'r') as opp_zip:
+        with ZipFile(self.dataset_path, 'r') as opp_zip:
             for line in opp_zip.read("OpportunityUCIDataset/dataset/column_names.txt").decode('utf-8').split("\r\n"):
                 match = re.search(
                     regx_str,
