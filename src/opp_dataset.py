@@ -17,6 +17,7 @@ from opp_utils import get_file_list_in_zip, linear_interpolation
 class OppDataset:
     # Consts
     SENSOR_SAMPLE_RATE = 30  # 30 Hz
+    TIMESTAMP_COLUMN_NAME = "MILLISEC"
     SUBJECTS: Tuple[str] = ("S1", "S2", "S3", "S4")
     RUNS: Tuple[str] = ("ADL1", "ADL2", "ADL3", "ADL4", "ADL5", "Drill")
 
@@ -64,24 +65,27 @@ class OppDataset:
 
         return res
 
-    def __init__(self, dataset_dir: str = DEFAULT_DATASET_DIR, download: bool = False):
+    def __init__(self, dataset_dir: Union[Path, str] = DEFAULT_DATASET_DIR, download: bool = False):
         """
 
         :param dataset_dir:
         """
 
+        if type(dataset_dir) != PosixPath:
+            to = Path(dataset_dir)
+
         # Check if the directory exists.
-        if not os.path.isdir(dataset_dir):
+        if not dataset_dir.is_dir():
             raise FileNotFoundError(
                 errno.ENOENT, os.strerror(errno.ENOENT),
                 f"{dataset_dir} {'(Default directory)' if dataset_dir == self.DEFAULT_DATASET_DIR else ''} not found. "
                 f"Please specify a directory that already exists."
             )
 
-        dataset_path = dataset_dir + f"{'' if dataset_dir[-1] == '/' else '/'}" + self.ZIP_FILE_NAME
+        dataset_path = dataset_dir / self.ZIP_FILE_NAME
 
         # Check if the dataset file exists.
-        if not os.path.isfile(dataset_path):
+        if not dataset_path.is_file():
             # Download the dataset when download is True
             if download:
                 # Check if dataset_dir exists
