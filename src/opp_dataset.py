@@ -11,7 +11,7 @@ import warnings
 import pandas as pd
 from pathlib import Path, PosixPath
 
-from utils import get_file_list_in_zip, linear_interpolation
+from opp_utils import get_file_list_in_zip, linear_interpolation
 
 
 class OppDataset:
