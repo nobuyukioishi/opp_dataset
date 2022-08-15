@@ -110,7 +110,7 @@ class OppDataset:
 
         opp_sensor_columns = []
         regx_str = r"Column: (?P<col_no>\d+) (?P<col_name>[\w\s^-]+)(;\s(?P<meta_info>[\w\s^=(),/*]+))*\n*"
-        with ZipFile(OppDataset.ZIP_FILE_NAME, 'r') as opp_zip:
+        with ZipFile(self.dataset_path, 'r') as opp_zip:
             for line in opp_zip.read("OpportunityUCIDataset/dataset/column_names.txt").decode('utf-8').split("\r\n"):
                 match = re.search(
                     regx_str,
@@ -134,7 +134,7 @@ class OppDataset:
 
         return opp_sensor_columns
 
-    def get_filepath_of_sbj_run(self, subject: str, run: str) -> str:
+    def get_filepath_of_sbj_run_in_zip(self, subject: str, run: str) -> str:
         """
         Return the filepath of the specified run of the specified subject.
         :param subject: "S1", "S2", "S3", or "S4"
@@ -167,7 +167,7 @@ class OppDataset:
         self._validate_sbj_run(subject, run)
 
         # prepare file_path and opp_columns
-        file_path = self.get_filepath_of_sbj_run(subject, run)
+        file_path = self.get_filepath_of_sbj_run_in_zip(subject, run)
         opp_columns = self.get_col_list()
 
         # load .dat file and covert it to dataframe
