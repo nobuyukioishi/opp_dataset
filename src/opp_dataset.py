@@ -1,4 +1,4 @@
-from typing import List, Tuple
+from typing import List, Tuple, Union
 import requests
 from tqdm import tqdm
 import os
@@ -9,6 +9,7 @@ import re
 from zipfile import ZipFile
 import warnings
 import pandas as pd
+from pathlib import Path, PosixPath
 
 import _utils
 
@@ -31,7 +32,7 @@ class OppDataset:
     dataset_path = None
 
     @staticmethod
-    def download_opportunity(to="./data/", archive_url: str = ARCHIVE_URL):
+    def download_opportunity(to: Union[Path, str] = "./data/", archive_url: str = ARCHIVE_URL):
         """
         Download the OPPORTUNITY dataset to the given path.
 
@@ -40,7 +41,10 @@ class OppDataset:
         :return:
         """
 
-        if not os.path.isdir(to):
+        if type(to) != PosixPath:
+            to = Path(to)
+
+        if not to.is_dir():
             raise FileNotFoundError(
                 errno.ENOENT, os.strerror(errno.ENOENT),
                 f"{to} not found. Please specify a directory that already exists."
@@ -48,7 +52,7 @@ class OppDataset:
 
         res = requests.get(archive_url, stream=True)
         chunk_size = 1024
-        with open("OpportunityUCIDataset.zip", "wb") as f:
+        with open(to / "OpportunityUCIDataset.zip", "wb") as f:
             total_length = int(res.headers.get('content-length'))
             for chunk in tqdm(res.iter_content(chunk_size=chunk_size), total=int(total_length / chunk_size) + 1,
                               desc="Downloading OpportunityUCIDataset.zip..."):
