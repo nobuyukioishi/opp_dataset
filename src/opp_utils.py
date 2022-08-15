@@ -1,4 +1,6 @@
 import pandas as pd
+import numpy as np
+
 from zipfile import ZipFile
 
 
@@ -29,3 +31,13 @@ def linear_interpolation(df: pd.DataFrame, fill_val: float = 0.0) -> pd.DataFram
     assert not df.isnull().values.any()
 
     return df
+
+
+def remove_outside_n_sigma(df, cutoff_n_sigma: int = 4, fill_val: float = np.nan):
+    col_means = df.mean()
+    col_stds = df.std()
+
+    ub = col_means + (col_stds * cutoff_n_sigma)
+    lb = col_means - (col_stds * cutoff_n_sigma)
+
+    return df.where((df >= lb) & (df <= ub), fill_val)
