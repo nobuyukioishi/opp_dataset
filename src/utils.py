@@ -7,7 +7,7 @@ def get_file_list_in_zip(zip_path: str):
         return [path for path in zf.namelist()]
 
 
-def replace_nans(df: pd.DataFrame, fill_val: float = 0.0) -> pd.DataFrame:
+def linear_interpolation(df: pd.DataFrame, fill_val: float = 0.0) -> pd.DataFrame:
     """ Replace nan values in the given dataframe with linear interpolation. The first and last nan values are filled \
     with zeros.
     :param df:

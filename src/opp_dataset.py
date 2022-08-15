@@ -11,7 +11,7 @@ import warnings
 import pandas as pd
 from pathlib import Path, PosixPath
 
-import _utils
+from utils import get_file_list_in_zip, linear_interpolation
 
 
 class OppDataset:
@@ -147,7 +147,7 @@ class OppDataset:
         file_path = f"OpportunityUCIDataset/dataset/{subject}-{run}.dat"
 
         # Check if file exists in zip.
-        assert file_path in _utils.get_file_list_in_zip(self.dataset_path)
+        assert file_path in get_file_list_in_zip(self.dataset_path)
 
         return file_path
 
@@ -176,7 +176,7 @@ class OppDataset:
             df_data = pd.read_csv(BytesIO(b_data), sep=' ', header=None, names=opp_columns)
 
         if fillna:
-            df_data = _utils.replace_nans(df_data)
+            df_data = linear_interpolation(df_data)
             if df_data.isnull().values.any():
                 warnings.warn("nan values still remain in the data")
 
