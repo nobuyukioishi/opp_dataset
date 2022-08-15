@@ -26,4 +26,6 @@ def linear_interpolation(df: pd.DataFrame, fill_val: float = 0.0) -> pd.DataFram
     data_cols = df.select_dtypes(include=['float64']).columns
     df[data_cols] = df[data_cols].interpolate(method='linear', axis=0)
 
+    assert not df.isnull().values.any()
+
     return df
